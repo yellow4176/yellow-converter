@@ -12,6 +12,55 @@ from openpyxl import load_workbook
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="노랑조명 명세서 변환기", layout="centered")
 
+
+# ============================================================
+# 비밀번호 잠금
+# ============================================================
+def check_password():
+    """비밀번호 입력 화면. 맞아야 앱 본체 실행."""
+    
+    def password_entered():
+        if st.session_state["password_input"] == st.secrets["APP_PASSWORD"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password_input"]  # 메모리에서 삭제
+        else:
+            st.session_state["password_correct"] = False
+    
+    # 이미 인증된 경우
+    if st.session_state.get("password_correct", False):
+        return True
+    
+    # 비밀번호 입력 화면
+    st.markdown("""
+        <div style='text-align:center; margin-top:80px; margin-bottom:30px;'>
+            <h2 style='color:#333; font-weight:700;'>🔒 노랑조명 명세서 변환기</h2>
+            <p style='color:#888; font-size:14px; margin-top:10px;'>매장 직원 전용 - 비밀번호를 입력해 주세요</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.text_input(
+        "비밀번호",
+        type="password",
+        on_change=password_entered,
+        key="password_input",
+        label_visibility="collapsed",
+        placeholder="비밀번호를 입력하세요"
+    )
+    
+    if "password_correct" in st.session_state:
+        if not st.session_state["password_correct"]:
+            st.error("❌ 비밀번호가 틀렸습니다. 다시 시도해 주세요.")
+    
+    st.markdown("<div style='border-top:1px solid #eee;margin-top:50px;padding-top:20px;text-align:center;font-size:11px;color:#bbb;'>Developed & Managed by <b>Eugene Lee Yu Ji</b></div>", unsafe_allow_html=True)
+    
+    return False
+
+
+# 비밀번호 통과 못하면 앱 본체 실행 안 함
+if not check_password():
+    st.stop()
+
+
 # --- CSS 스타일 ---
 st.markdown("""
     <style>
