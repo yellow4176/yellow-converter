@@ -7,30 +7,49 @@ import base64
 import json
 import math
 import re
+import hashlib
 from openpyxl import load_workbook
+from streamlit_cookies_controller import CookieController
 
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="노랑조명 명세서 변환기", layout="centered")
 
 
 # ============================================================
-# 비밀번호 잠금
+# 비밀번호 잠금 (30일 자동 로그인)
 # ============================================================
 def check_password():
-    """비밀번호 입력 화면. 맞아야 앱 본체 실행."""
+    """비밀번호 입력 화면. 맞으면 쿠키에 30일 저장하여 자동 로그인."""
     
-    def password_entered():
-        if st.session_state["password_input"] == st.secrets["APP_PASSWORD"]:
-            st.session_state["password_correct"] = True
-            del st.session_state["password_input"]  # 메모리에서 삭제
-        else:
-            st.session_state["password_correct"] = False
+    cookie_controller = CookieController(key="norang_auth_cookies")
+    auth_password = st.secrets["APP_PASSWORD"]
+    expected_hash = hashlib.sha256(auth_password.encode()).hexdigest()
     
-    # 이미 인증된 경우
+    # 1. 이미 세션에서 인증됨
     if st.session_state.get("password_correct", False):
         return True
     
-    # 비밀번호 입력 화면
+    # 2. 쿠키 자동 로그인 체크
+    cookie_value = cookie_controller.get('norang_auth')
+    if cookie_value == expected_hash:
+        st.session_state["password_correct"] = True
+        return True
+    
+    # 3. 첫 렌더링 시 쿠키가 None일 수 있어 한 번 더 시도
+    if cookie_value is None and not st.session_state.get("_cookie_check_done", False):
+        st.session_state["_cookie_check_done"] = True
+        st.rerun()
+    
+    # 4. 비밀번호 입력 화면
+    def password_entered():
+        if st.session_state["password_input"] == auth_password:
+            st.session_state["password_correct"] = True
+            # 쿠키에 해시 저장 (30일 = 30*24*60*60초)
+            cookie_controller.set('norang_auth', expected_hash, max_age=30*24*60*60)
+            del st.session_state["password_input"]
+        else:
+            st.session_state["password_correct"] = False
+    
     st.markdown("""
         <div style='text-align:center; margin-top:80px; margin-bottom:30px;'>
             <h2 style='color:#333; font-weight:700;'>🔒 노랑조명 명세서 변환기</h2>
