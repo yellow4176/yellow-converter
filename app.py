@@ -62,21 +62,8 @@ if not check_password():
 
 
 # ============================================================
-# 처음부터 다시 시작 (query param 처리)
+# uploader_key 초기화 (file_uploader 리셋용)
 # ============================================================
-if st.query_params.get('restart') == '1':
-    # 비밀번호 외 모든 세션 키 초기화
-    keep = {'password_correct'}
-    for k in list(st.session_state.keys()):
-        if k not in keep:
-            del st.session_state[k]
-    # file_uploader 리셋용 새 key
-    import time as _time_reset
-    st.session_state['uploader_key'] = f'uploader_{int(_time_reset.time() * 1000)}'
-    st.query_params.clear()
-    st.rerun()
-
-# uploader_key 초기화
 if 'uploader_key' not in st.session_state:
     st.session_state['uploader_key'] = 'uploader_initial'
 
@@ -94,35 +81,51 @@ def _get_dog_b64():
 
 _dog_b64 = _get_dog_b64()
 if _dog_b64:
+    # 강아지 floating 버튼 - streamlit form 사용 (페이지 reload 없이 처리)
     st.markdown(f"""
-    <a href="?restart=1" class="floating-dog-link">
-        <img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" />
-        <span class="floating-dog-label">처음부터<br>다시 시작</span>
-    </a>
     <style>
-    .floating-dog-link {{
-        position: fixed;
-        bottom: 50px;
-        right: 30px;
-        z-index: 9999;
-        width: 90px;
-        height: 110px;
-        text-decoration: none;
-        display: block;
-        cursor: pointer;
+    /* form 자체를 fixed로 */
+    [data-testid="stForm"] {{
+        position: fixed !important;
+        bottom: 50px !important;
+        right: 30px !important;
+        z-index: 9999 !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        width: 90px !important;
+        max-width: 90px !important;
+        box-shadow: none !important;
     }}
-    .floating-dog-link img {{
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+    /* form 안 button을 강아지 이미지로 */
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] {{
+        width: 90px !important;
+        height: 110px !important;
+    }}
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{
+        width: 90px !important;
+        height: 110px !important;
+        background-image: url('data:image/png;base64,{_dog_b64}') !important;
+        background-size: contain !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-color: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        font-size: 1px !important;
+        padding: 0 !important;
+        cursor: pointer !important;
         filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
         transition: transform 0.2s, filter 0.2s;
     }}
-    .floating-dog-link:hover img {{
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {{
         transform: scale(1.08);
         filter: drop-shadow(0 0 12px rgba(255, 212, 0, 0.7));
     }}
-    .floating-dog-label {{
+    /* button 옆에 라벨 (CSS pseudo-element) */
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"]::before {{
+        content: "처음부터\\A 다시 시작";
+        white-space: pre;
         position: absolute;
         right: 100px;
         top: 50%;
@@ -133,7 +136,6 @@ if _dog_b64:
         font-size: 12px;
         font-weight: 600;
         color: #555;
-        white-space: nowrap;
         box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         opacity: 0;
         transition: opacity 0.2s;
@@ -141,11 +143,23 @@ if _dog_b64:
         text-align: center;
         line-height: 1.3;
     }}
-    .floating-dog-link:hover .floating-dog-label {{
+    [data-testid="stForm"]:hover [data-testid="stFormSubmitButton"]::before {{
         opacity: 1;
     }}
     </style>
     """, unsafe_allow_html=True)
+    
+    with st.form(key="dog_restart_form", clear_on_submit=False, border=False):
+        if st.form_submit_button("R", help="처음부터 다시 시작"):
+            # 비밀번호 외 모든 세션 초기화
+            keep = {'password_correct'}
+            for k in list(st.session_state.keys()):
+                if k not in keep:
+                    del st.session_state[k]
+            # file_uploader 리셋용 새 key
+            import time as _time_reset
+            st.session_state['uploader_key'] = f'uploader_{int(_time_reset.time() * 1000)}'
+            st.rerun()
 
 
 # --- CSS 스타일 ---
