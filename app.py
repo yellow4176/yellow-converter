@@ -139,15 +139,19 @@ button[kind="tertiary"] {
     box-shadow: none !important;
     margin: 0 !important;
 }
-button[kind="tertiary"]:hover {
-    background: rgba(255, 212, 0, 0.15) !important;
-    border-radius: 8px !important;
+button[kind="tertiary"]:hover,
+button[kind="tertiary"]:focus,
+button[kind="tertiary"]:active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
     
     # 3. tertiary button (강아지 위 투명 overlay - unique 식별)
-    if st.button("R", type="tertiary", help="처음부터 다시 시작", key="dog_restart_btn"):
+    if st.button("R", type="tertiary", key="dog_restart_btn"):
         # 비밀번호 외 모든 세션 초기화
         keep = {'password_correct'}
         for k in list(st.session_state.keys()):
