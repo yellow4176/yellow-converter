@@ -4,4 +4,3 @@ pandas
 openpyxl
 Pillow
 requests
-streamlit-cookies-controller
