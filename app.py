@@ -114,7 +114,7 @@ if _dog_b64:
     # 1. 강아지 이미지 - inline style로 fixed (보장)
     st.markdown(
         f'<img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" '
-        f'style="position:fixed;bottom:50px;right:30px;width:90px;height:110px;'
+        f'style="position:fixed;bottom:50px;right:30px;width:100px;height:150px;'
         f'object-fit:contain;z-index:9998;pointer-events:none;'
         f'filter:drop-shadow(0 2px 8px rgba(0,0,0,0.15));" />',
         unsafe_allow_html=True
@@ -128,8 +128,8 @@ button[kind="tertiary"] {
     bottom: 50px !important;
     right: 30px !important;
     z-index: 9999 !important;
-    width: 90px !important;
-    height: 110px !important;
+    width: 100px !important;
+    height: 150px !important;
     background: transparent !important;
     border: none !important;
     color: transparent !important;
@@ -148,7 +148,7 @@ button[kind="tertiary"]:active {
     outline: none !important;
 }
 /* hover 시 툴팁 (button의 가상 자식 element) */
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Yeon+Sung&display=swap');
 button[kind="tertiary"] {
     overflow: visible !important;
 }
@@ -157,18 +157,18 @@ button[kind="tertiary"]::before {
     white-space: pre;
     text-align: center;
     
-    /* 동그라미 모양 */
-    width: 85px;
-    height: 85px;
+    /* 동그라미 모양 - 작게 */
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     box-sizing: border-box;
     
-    /* 위치 - 강아지 좌측 */
+    /* 위치 - 강아지 좌측 가까이 */
     position: absolute;
     right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-right: 15px;
+    margin-right: 8px;
     
     /* 텍스트 가운데 정렬 (flexbox) */
     display: flex;
@@ -176,10 +176,10 @@ button[kind="tertiary"]::before {
     justify-content: center;
     line-height: 1.4;
     
-    /* 스타일 - 동글동글 귀여운 폰트 */
+    /* 스타일 - 동글동글 손글씨 폰트 */
     background: rgba(255, 255, 255, 0.97);
     color: #555 !important;
-    font-family: 'Jua', sans-serif !important;
+    font-family: 'Yeon Sung', cursive !important;
     font-size: 13px !important;
     font-weight: 400;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
