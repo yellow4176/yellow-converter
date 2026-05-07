@@ -147,6 +147,30 @@ button[kind="tertiary"]:active {
     box-shadow: none !important;
     outline: none !important;
 }
+/* hover 시 툴팁 (button의 가상 자식 element) */
+button[kind="tertiary"]::before {
+    content: "처음으로 돌아가기";
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 12px;
+    background: rgba(255, 255, 255, 0.97);
+    color: #555 !important;
+    font-size: 12px !important;
+    font-weight: 600;
+    padding: 7px 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+button[kind="tertiary"]:hover::before {
+    opacity: 1;
+}
 </style>
 """, unsafe_allow_html=True)
     
