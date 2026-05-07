@@ -1103,27 +1103,93 @@ if uploaded_files:
     active_files = [f for f in uploaded_files if f"{f.name}_{f.size}" not in excluded]
 
 if active_files:
-    # 업로드된 모든 이미지 미리보기
+    # 미리보기 박스 CSS (이미지 고정 높이 + 깔끔한 휴지통 버튼)
+    st.markdown("""
+        <style>
+        /* 이미지 고정 높이 컨테이너 */
+        .preview-box {
+            position: relative;
+            width: 100%;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .preview-box.multi { height: 220px; }
+        .preview-box.single { height: 380px; }
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .preview-caption {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* 휴지통 버튼 - 작고 깔끔하게 */
+        .trash-btn-row [data-testid="stButton"] button {
+            background-color: #fff !important;
+            border: 1px solid #ddd !important;
+            color: #555 !important;
+            padding: 4px 8px !important;
+            min-height: 30px !important;
+            height: 30px !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+        }
+        .trash-btn-row [data-testid="stButton"] button:hover {
+            background-color: #ffebee !important;
+            border-color: #ef5350 !important;
+            color: #d32f2f !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    def render_image_box(f, is_single=False):
+        """이미지를 고정 높이 박스로 표시 (base64 사용)"""
+        img = Image.open(f)
+        buf = io.BytesIO()
+        img_save = img.convert('RGB') if img.mode in ('RGBA', 'P') else img
+        img_save.save(buf, format='JPEG', quality=85)
+        img_b64 = base64.b64encode(buf.getvalue()).decode()
+        
+        box_class = "preview-box single" if is_single else "preview-box multi"
+        st.markdown(f"""
+            <div class="{box_class}">
+                <img src="data:image/jpeg;base64,{img_b64}" alt="{f.name}">
+            </div>
+            <div class="preview-caption">{f.name}</div>
+        """, unsafe_allow_html=True)
+    
     if len(active_files) == 1:
         f = active_files[0]
-        image = Image.open(f)
-        st.image(image, caption=f.name, use_container_width=True)
-        # 1장일 때는 가운데에 작은 제외 버튼
-        col_a, col_b, col_c = st.columns([2, 1, 2])
+        render_image_box(f, is_single=True)
+        # 휴지통 버튼 - 우측 끝
+        col_a, col_b = st.columns([8, 1])
         with col_b:
-            if st.button("🗑️ 이미지 제외", key=f"del_single_{f.name}_{f.size}", use_container_width=True):
+            st.markdown('<div class="trash-btn-row">', unsafe_allow_html=True)
+            if st.button("🗑️", key=f"del_single_{f.name}_{f.size}", help="이미지 제외"):
                 st.session_state.excluded_files.add(f"{f.name}_{f.size}")
                 st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown(f"### 업로드된 파일 {len(active_files)}장")
         cols = st.columns(min(len(active_files), 4))
         for idx, f in enumerate(active_files):
             with cols[idx % 4]:
-                img = Image.open(f)
-                st.image(img, caption=f.name, use_container_width=True)
-                if st.button("🗑️ 제외", key=f"del_{f.name}_{f.size}", use_container_width=True):
-                    st.session_state.excluded_files.add(f"{f.name}_{f.size}")
-                    st.rerun()
+                render_image_box(f, is_single=False)
+                # 휴지통 버튼 - 우측 끝
+                btn_col_a, btn_col_b = st.columns([4, 1])
+                with btn_col_b:
+                    st.markdown('<div class="trash-btn-row">', unsafe_allow_html=True)
+                    if st.button("🗑️", key=f"del_{f.name}_{f.size}", help="이미지 제외"):
+                        st.session_state.excluded_files.add(f"{f.name}_{f.size}")
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
 elif uploaded_files:
     # 모두 제외된 상태
     excluded_count = len(st.session_state.get('excluded_files', set()))
