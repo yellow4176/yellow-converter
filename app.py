@@ -95,24 +95,32 @@ def _get_dog_b64():
 _dog_b64 = _get_dog_b64()
 if _dog_b64:
     st.markdown(f"""
-    <div class="floating-dog-wrapper">
+    <a href="?restart=1" class="floating-dog-link">
+        <img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" />
         <span class="floating-dog-label">처음부터<br>다시 시작</span>
-        <svg viewBox="0 0 162 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <a href="?restart=1" target="_top">
-                <image href="data:image/png;base64,{_dog_b64}" 
-                       width="162" height="200" 
-                       pointer-events="visiblePainted"/>
-            </a>
-        </svg>
-    </div>
+    </a>
     <style>
-    .floating-dog-wrapper {{
+    .floating-dog-link {{
         position: fixed;
-        bottom: 30px;
+        bottom: 50px;
         right: 30px;
         z-index: 9999;
         width: 90px;
         height: 110px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+    }}
+    .floating-dog-link img {{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+        transition: transform 0.2s, filter 0.2s;
+    }}
+    .floating-dog-link:hover img {{
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 12px rgba(255, 212, 0, 0.7));
     }}
     .floating-dog-label {{
         position: absolute;
@@ -133,20 +141,7 @@ if _dog_b64:
         text-align: center;
         line-height: 1.3;
     }}
-    .floating-dog-wrapper svg {{
-        width: 100%;
-        height: 100%;
-        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
-        transition: filter 0.2s, transform 0.2s;
-    }}
-    .floating-dog-wrapper svg image {{
-        cursor: pointer;
-    }}
-    .floating-dog-wrapper:has(image:hover) svg {{
-        transform: scale(1.08);
-        filter: drop-shadow(0 0 12px rgba(255, 212, 0, 0.7));
-    }}
-    .floating-dog-wrapper:has(image:hover) .floating-dog-label {{
+    .floating-dog-link:hover .floating-dog-label {{
         opacity: 1;
     }}
     </style>
