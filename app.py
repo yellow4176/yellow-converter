@@ -71,7 +71,6 @@ if 'uploader_key' not in st.session_state:
 # ============================================================
 # Floating "처음부터 다시 시작" 강아지 버튼
 # ============================================================
-@st.cache_data
 def _get_dog_b64():
     try:
         with open('dog.png', 'rb') as _f:
@@ -81,48 +80,42 @@ def _get_dog_b64():
 
 _dog_b64 = _get_dog_b64()
 if _dog_b64:
-    # 1. 강아지 이미지 (markdown으로 직접 표시)
+    # 1. 강아지 이미지 - inline style로 fixed (CSS 적용 여부 무관하게 100% 보장)
     st.markdown(
-        f'<div class="dog-floating-img"><img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" /></div>',
+        f'<img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" '
+        f'style="position:fixed;bottom:50px;right:30px;width:90px;height:110px;'
+        f'object-fit:contain;z-index:9998;pointer-events:none;'
+        f'filter:drop-shadow(0 2px 8px rgba(0,0,0,0.15));" />',
         unsafe_allow_html=True
     )
     
-    # 2. CSS (변수 치환 없는 단순 문자열 - sanitize 안 걸림)
+    # 2. form button을 강아지 위 투명 overlay로 (여러 selector 시도)
     st.markdown("""
 <style>
-.dog-floating-img {
-    position: fixed;
-    bottom: 50px;
-    right: 30px;
-    z-index: 9998;
-    width: 90px;
-    height: 110px;
-    pointer-events: none;
-}
-.dog-floating-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
-}
-
-[data-testid="stForm"] {
+/* form 자체를 fixed - streamlit 버전별 selector 모두 적용 */
+div[data-testid="stForm"],
+form[data-testid="stForm"],
+.stForm,
+section[data-testid="stForm"] {
     position: fixed !important;
     bottom: 50px !important;
     right: 30px !important;
     z-index: 9999 !important;
     width: 90px !important;
     max-width: 90px !important;
+    min-width: 90px !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
     box-shadow: none !important;
 }
-[data-testid="stForm"] [data-testid="stFormSubmitButton"] {
-    width: 90px !important;
-    height: 110px !important;
-}
-[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+/* form 안 button - submit button 다양한 selector */
+div[data-testid="stForm"] button,
+form[data-testid="stForm"] button,
+.stForm button,
+[data-testid="stFormSubmitButton"] button,
+[data-testid="baseButton-secondaryFormSubmit"] {
     width: 90px !important;
     height: 110px !important;
     background: transparent !important;
@@ -132,9 +125,11 @@ if _dog_b64:
     padding: 0 !important;
     cursor: pointer !important;
     box-shadow: none !important;
+    margin: 0 !important;
 }
-[data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
-    background: rgba(255, 212, 0, 0.1) !important;
+div[data-testid="stForm"] button:hover {
+    background: rgba(255, 212, 0, 0.15) !important;
+    border-radius: 8px !important;
 }
 </style>
 """, unsafe_allow_html=True)
