@@ -148,7 +148,7 @@ button[kind="tertiary"]:active {
     outline: none !important;
 }
 /* hover 시 툴팁 (button의 가상 자식 element) */
-@import url('https://fonts.googleapis.com/css2?family=Yeon+Sung&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap');
 button[kind="tertiary"] {
     overflow: visible !important;
 }
@@ -179,7 +179,7 @@ button[kind="tertiary"]::before {
     /* 스타일 - 동글동글 손글씨 폰트 */
     background: rgba(255, 255, 255, 0.97);
     color: #555 !important;
-    font-family: 'Yeon Sung', cursive !important;
+    font-family: 'Hi+Melody', cursive !important;
     font-size: 13px !important;
     font-weight: 400;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
