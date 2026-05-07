@@ -51,7 +51,7 @@ def check_password():
         if not st.session_state["password_correct"]:
             st.error("❌ 비밀번호가 틀렸습니다. 다시 시도해 주세요.")
     
-    st.markdown("<div style='border-top:1px solid #eee;margin-top:50px;padding-top:20px;text-align:center;font-size:11px;color:#bbb;'>Developed & Managed by <b>Eugene Lee Yu Ji</b></div>", unsafe_allow_html=True)
+    st.markdown("<div style='border-top:1px solid #eee;margin-top:50px;padding-top:20px;text-align:center;font-size:11px;color:#bbb;'>Developed & Managed by <b>Eugene UG</b></div>", unsafe_allow_html=True)
     
     return False
 
