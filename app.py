@@ -111,68 +111,52 @@ def _get_dog_b64():
 
 _dog_b64 = _get_dog_b64()
 if _dog_b64:
-    # auth 토큰 (URL 유지용)
-    _AUTH_TOKEN = hashlib.sha256(st.secrets["APP_PASSWORD"].encode()).hexdigest()[:16]
-    _restart_url = f"?restart=1&auth={_AUTH_TOKEN}"
-    
-    # 강아지 a tag (이전에 작동했던 방식 + auth 토큰으로 인증 유지)
+    # 1. 강아지 이미지 - inline style로 fixed (보장)
     st.markdown(
-        f'<a href="{_restart_url}" class="floating-dog-link" title="처음부터 다시 시작">'
-        f'<img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" />'
-        f'<span class="floating-dog-label">처음부터<br>다시 시작</span>'
-        f'</a>',
+        f'<img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" '
+        f'style="position:fixed;bottom:50px;right:30px;width:90px;height:110px;'
+        f'object-fit:contain;z-index:9998;pointer-events:none;'
+        f'filter:drop-shadow(0 2px 8px rgba(0,0,0,0.15));" />',
         unsafe_allow_html=True
     )
     
-    # CSS (변수 치환 없는 단순 string)
+    # 2. tertiary button을 강아지 위 투명 overlay로 fixed
     st.markdown("""
 <style>
-.floating-dog-link {
-    position: fixed;
-    bottom: 50px;
-    right: 30px;
-    z-index: 9999;
-    width: 90px;
-    height: 110px;
-    text-decoration: none;
-    display: block;
-    cursor: pointer;
+button[kind="tertiary"] {
+    position: fixed !important;
+    bottom: 50px !important;
+    right: 30px !important;
+    z-index: 9999 !important;
+    width: 90px !important;
+    height: 110px !important;
+    background: transparent !important;
+    border: none !important;
+    color: transparent !important;
+    font-size: 1px !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    margin: 0 !important;
 }
-.floating-dog-link img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
-    transition: transform 0.2s, filter 0.2s;
-}
-.floating-dog-link:hover img {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 12px rgba(255, 212, 0, 0.7));
-}
-.floating-dog-label {
-    position: absolute;
-    right: 100px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.95);
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #555;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-    text-align: center;
-    line-height: 1.3;
-}
-.floating-dog-link:hover .floating-dog-label {
-    opacity: 1;
+button[kind="tertiary"]:hover {
+    background: rgba(255, 212, 0, 0.15) !important;
+    border-radius: 8px !important;
 }
 </style>
 """, unsafe_allow_html=True)
+    
+    # 3. tertiary button (강아지 위 투명 overlay - unique 식별)
+    if st.button("R", type="tertiary", help="처음부터 다시 시작", key="dog_restart_btn"):
+        # 비밀번호 외 모든 세션 초기화
+        keep = {'password_correct'}
+        for k in list(st.session_state.keys()):
+            if k not in keep:
+                del st.session_state[k]
+        # file_uploader 리셋용 새 key
+        import time as _time_reset
+        st.session_state['uploader_key'] = f'uploader_{int(_time_reset.time() * 1000)}'
+        st.rerun()
 
 
 # --- CSS 스타일 ---
