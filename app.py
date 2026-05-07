@@ -148,22 +148,42 @@ button[kind="tertiary"]:active {
     outline: none !important;
 }
 /* hover 시 툴팁 (button의 가상 자식 element) */
+button[kind="tertiary"] {
+    overflow: visible !important;
+}
 button[kind="tertiary"]::before {
-    content: "처음으로 돌아가기";
+    content: "이전으로\\A돌아가자멍";
+    white-space: pre;
+    text-align: center;
+    
+    /* 동그라미 모양 */
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    
+    /* 위치 - 강아지 좌측 */
     position: absolute;
     right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-right: 12px;
+    margin-right: 15px;
+    
+    /* 텍스트 가운데 정렬 (flexbox) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.4;
+    
+    /* 스타일 */
     background: rgba(255, 255, 255, 0.97);
     color: #555 !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: 600;
-    padding: 7px 11px;
-    border-radius: 6px;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    /* 효과 */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
@@ -191,7 +211,7 @@ button[kind="tertiary"]:hover::before {
 st.markdown("""
     <style>
     .block-container { 
-        padding-top: 1rem !important; 
+        padding-top: 3rem !important; 
         max-width: 730px !important;
     }
     .stApp { background-color: white; }
