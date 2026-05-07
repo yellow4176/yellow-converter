@@ -153,7 +153,7 @@ button[kind="tertiary"] {
     overflow: visible !important;
 }
 button[kind="tertiary"]::before {
-    content: "이전으로\\A돌아가자멍";
+    content: "처음으로\\A가자멍♥";
     white-space: pre;
     text-align: center;
     
