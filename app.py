@@ -1103,10 +1103,10 @@ if uploaded_files:
     active_files = [f for f in uploaded_files if f"{f.name}_{f.size}" not in excluded]
 
 if active_files:
-    # 미리보기 박스 CSS (이미지 고정 높이 + 깔끔한 휴지통 버튼)
+    # 미리보기 박스 CSS
     st.markdown("""
         <style>
-        /* 이미지 고정 높이 컨테이너 */
+        /* 이미지 고정 높이 박스 */
         .preview-box {
             position: relative;
             width: 100%;
@@ -1114,7 +1114,7 @@ if active_files:
             border-radius: 8px;
             overflow: hidden;
         }
-        .preview-box.multi { height: 220px; }
+        .preview-box.multi { height: 200px; }
         .preview-box.single { height: 380px; }
         .preview-box img {
             width: 100%;
@@ -1130,27 +1130,34 @@ if active_files:
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        /* 휴지통 버튼 - 작고 깔끔하게 */
-        .trash-btn-row [data-testid="stButton"] button {
-            background-color: #fff !important;
-            border: 1px solid #ddd !important;
-            color: #555 !important;
-            padding: 4px 8px !important;
-            min-height: 30px !important;
-            height: 30px !important;
+        /* form_submit_button만 별도 스타일 (휴지통) */
+        [data-testid="stFormSubmitButton"] button {
+            background-color: white !important;
+            color: #999 !important;
+            border: 1px solid #e0e0e0 !important;
+            min-height: 32px !important;
+            height: 32px !important;
+            width: 36px !important;
+            padding: 0 !important;
+            font-size: 13px !important;
             border-radius: 6px !important;
-            font-size: 14px !important;
         }
-        .trash-btn-row [data-testid="stButton"] button:hover {
+        [data-testid="stFormSubmitButton"] button:hover {
             background-color: #ffebee !important;
             border-color: #ef5350 !important;
             color: #d32f2f !important;
+        }
+        /* form 자체 padding/border 제거 */
+        [data-testid="stForm"] {
+            border: none !important;
+            padding: 0 !important;
+            background: transparent !important;
         }
         </style>
     """, unsafe_allow_html=True)
     
     def render_image_box(f, is_single=False):
-        """이미지를 고정 높이 박스로 표시 (base64 사용)"""
+        """이미지를 고정 높이 박스로 표시"""
         img = Image.open(f)
         buf = io.BytesIO()
         img_save = img.convert('RGB') if img.mode in ('RGBA', 'P') else img
@@ -1165,31 +1172,36 @@ if active_files:
             <div class="preview-caption">{f.name}</div>
         """, unsafe_allow_html=True)
     
+    def trash_button(f):
+        """form_submit_button으로 휴지통 (별도 스타일 적용 가능)"""
+        with st.form(key=f"trash_form_{f.name}_{f.size}", clear_on_submit=False, border=False):
+            return st.form_submit_button("🗑", help="이미지 제외")
+    
     if len(active_files) == 1:
         f = active_files[0]
-        render_image_box(f, is_single=True)
-        # 휴지통 버튼 - 우측 끝
-        col_a, col_b = st.columns([8, 1])
-        with col_b:
-            st.markdown('<div class="trash-btn-row">', unsafe_allow_html=True)
-            if st.button("🗑️", key=f"del_single_{f.name}_{f.size}", help="이미지 제외"):
+        # 이미지 박스 + 우측 작은 휴지통
+        img_col, trash_col = st.columns([18, 1])
+        with img_col:
+            render_image_box(f, is_single=True)
+        with trash_col:
+            st.markdown('<div style="height:8px;"></div>', unsafe_allow_html=True)
+            if trash_button(f):
                 st.session_state.excluded_files.add(f"{f.name}_{f.size}")
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown(f"### 업로드된 파일 {len(active_files)}장")
         cols = st.columns(min(len(active_files), 4))
         for idx, f in enumerate(active_files):
             with cols[idx % 4]:
-                render_image_box(f, is_single=False)
-                # 휴지통 버튼 - 우측 끝
-                btn_col_a, btn_col_b = st.columns([4, 1])
-                with btn_col_b:
-                    st.markdown('<div class="trash-btn-row">', unsafe_allow_html=True)
-                    if st.button("🗑️", key=f"del_{f.name}_{f.size}", help="이미지 제외"):
+                # 그리드 셀 안에서 이미지 + 우측 휴지통
+                img_col, trash_col = st.columns([6, 1])
+                with img_col:
+                    render_image_box(f, is_single=False)
+                with trash_col:
+                    st.markdown('<div style="height:8px;"></div>', unsafe_allow_html=True)
+                    if trash_button(f):
                         st.session_state.excluded_files.add(f"{f.name}_{f.size}")
                         st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
 elif uploaded_files:
     # 모두 제외된 상태
     excluded_count = len(st.session_state.get('excluded_files', set()))
