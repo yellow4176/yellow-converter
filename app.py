@@ -213,7 +213,7 @@ button[kind="tertiary"]:hover::before {
 st.markdown("""
     <style>
     .block-container { 
-        padding-top: 3rem !important; 
+        padding-top: 1rem !important; 
         max-width: 730px !important;
     }
     .stApp { background-color: white; }
