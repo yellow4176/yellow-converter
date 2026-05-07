@@ -29,8 +29,12 @@ def check_password():
     if st.session_state.get("password_correct", False):
         return True
     
-    # 2. 쿠키 자동 로그인 체크
-    cookie_value = cookie_controller.get('norang_auth')
+    # 2. 쿠키 자동 로그인 체크 (첫 로드 시 None 안전 처리)
+    try:
+        cookie_value = cookie_controller.get('norang_auth')
+    except (TypeError, AttributeError, KeyError):
+        cookie_value = None
+    
     if cookie_value == expected_hash:
         st.session_state["password_correct"] = True
         return True
@@ -44,8 +48,10 @@ def check_password():
     def password_entered():
         if st.session_state["password_input"] == auth_password:
             st.session_state["password_correct"] = True
-            # 쿠키에 해시 저장 (30일 = 30*24*60*60초)
-            cookie_controller.set('norang_auth', expected_hash, max_age=30*24*60*60)
+            try:
+                cookie_controller.set('norang_auth', expected_hash, max_age=30*24*60*60)
+            except Exception:
+                pass  # 쿠키 저장 실패해도 로그인은 진행
             del st.session_state["password_input"]
         else:
             st.session_state["password_correct"] = False
