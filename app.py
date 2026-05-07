@@ -81,51 +81,31 @@ def _get_dog_b64():
 
 _dog_b64 = _get_dog_b64()
 if _dog_b64:
-    # 강아지 floating 버튼 - streamlit form 사용 (페이지 reload 없이 처리)
+    # 강아지 이미지 (markdown으로 직접 표시 - 보장됨)
     st.markdown(f"""
+    <div class="dog-floating-img">
+        <img src="data:image/png;base64,{_dog_b64}" alt="처음부터 다시 시작" />
+        <span class="dog-floating-label">처음부터<br>다시 시작</span>
+    </div>
     <style>
-    /* form 자체를 fixed로 */
-    [data-testid="stForm"] {{
-        position: fixed !important;
-        bottom: 50px !important;
-        right: 30px !important;
-        z-index: 9999 !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        width: 90px !important;
-        max-width: 90px !important;
-        box-shadow: none !important;
+    /* 강아지 이미지 - 시각용 (클릭 안 받음) */
+    .dog-floating-img {{
+        position: fixed;
+        bottom: 50px;
+        right: 30px;
+        z-index: 9998;
+        width: 90px;
+        height: 110px;
+        pointer-events: none;
     }}
-    /* form 안 button을 강아지 이미지로 */
-    [data-testid="stForm"] [data-testid="stFormSubmitButton"] {{
-        width: 90px !important;
-        height: 110px !important;
-    }}
-    [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{
-        width: 90px !important;
-        height: 110px !important;
-        background-image: url('data:image/png;base64,{_dog_b64}') !important;
-        background-size: contain !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
-        background-color: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        font-size: 1px !important;
-        padding: 0 !important;
-        cursor: pointer !important;
+    .dog-floating-img img {{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
         filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
         transition: transform 0.2s, filter 0.2s;
     }}
-    [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {{
-        transform: scale(1.08);
-        filter: drop-shadow(0 0 12px rgba(255, 212, 0, 0.7));
-    }}
-    /* button 옆에 라벨 (CSS pseudo-element) */
-    [data-testid="stForm"] [data-testid="stFormSubmitButton"]::before {{
-        content: "처음부터\\A 다시 시작";
-        white-space: pre;
+    .dog-floating-label {{
         position: absolute;
         right: 100px;
         top: 50%;
@@ -136,6 +116,7 @@ if _dog_b64:
         font-size: 12px;
         font-weight: 600;
         color: #555;
+        white-space: nowrap;
         box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         opacity: 0;
         transition: opacity 0.2s;
@@ -143,7 +124,45 @@ if _dog_b64:
         text-align: center;
         line-height: 1.3;
     }}
-    [data-testid="stForm"]:hover [data-testid="stFormSubmitButton"]::before {{
+    
+    /* streamlit form을 강아지 위에 transparent overlay로 fixed */
+    [data-testid="stForm"] {{
+        position: fixed !important;
+        bottom: 50px !important;
+        right: 30px !important;
+        z-index: 9999 !important;
+        width: 90px !important;
+        max-width: 90px !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }}
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] {{
+        width: 90px !important;
+        height: 110px !important;
+    }}
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{
+        width: 90px !important;
+        height: 110px !important;
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        font-size: 1px !important;
+        padding: 0 !important;
+        cursor: pointer !important;
+        box-shadow: none !important;
+    }}
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {{
+        background: transparent !important;
+    }}
+    /* form hover 시 강아지 효과 */
+    [data-testid="stForm"]:hover ~ div .dog-floating-img img,
+    body:has([data-testid="stForm"]:hover) .dog-floating-img img {{
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 12px rgba(255, 212, 0, 0.7));
+    }}
+    body:has([data-testid="stForm"]:hover) .dog-floating-label {{
         opacity: 1;
     }}
     </style>
