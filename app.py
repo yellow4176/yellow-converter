@@ -679,6 +679,7 @@ CATEGORY_KEYWORDS = {
     'T5': ['T5'],
     'T7': ['T7'],
     'T3': ['T3'],
+    '안정기': ['안정기'],
     '배선기구': ['조광기', '디머', '스위치형', '컨트롤러', '리모컨'],
     '램프': ['MR16', 'MR11', 'PAR16', 'PAR20', 'PAR30', 'PAR38',
              '벌브', '인찌구', '볼구', '촛대구',
@@ -686,7 +687,6 @@ CATEGORY_KEYWORDS = {
              'G45', 'G80', 'G95', 'G125', 'G9',
              'A19', 'A21', 'A60', 'A65', 'A70', 'A75', 'A80', 'A95', 'A110',
              'C35', 'B11', 'B35',
-             'T8',
              'PL램프', 'PLC', 'PLD', 'PLT',
              '콘벌브', '램프'],
 }
@@ -757,15 +757,67 @@ def detect_special_category(text):
     return ''
 
 
+def detect_priority_category(text):
+    """우선순위 룰이 필요한 카테고리 판별.
+    
+    적용 순서 (위가 우선):
+    1. 외부등: IP등급 있거나 "외부/옥외/야외" 표기 → 외부등 (외부 센서등도 외부등으로)
+    2. 공장등: "공장" 단어 → 공장등 (공장 직부등도 공장등으로)
+    3. 벽등: "벽등" 단어 → 벽등 (센서 벽등도 벽등으로)
+    4. 직부등: "직부" 단어 → 직부등
+    5. 센서등: "센서" 단어 → 센서등 (위에서 안 잡혔을 때만 - 실내 전용)
+    
+    Returns:
+        str: 매칭된 카테고리명. 없으면 빈 문자열.
+    """
+    if not text:
+        return ''
+    s = str(text)
+    
+    # 1순위: 외부등 (IP등급 또는 외부 키워드)
+    has_ip = bool(re.search(r'IP\s*\d{2}', s, re.IGNORECASE))
+    has_outdoor = bool(re.search(r'외부|옥외|야외', s))
+    if has_ip or has_outdoor:
+        # 단, 이름에 명시적으로 "외부등", "외부" 같은 키워드가 있어야 외부등으로 분류
+        # IP등급만 있고 다른 카테고리 키워드가 명확하면 그쪽 우선 (예: IP44 매입등 → 매입등)
+        if has_outdoor or re.search(r'외부등', s):
+            return '외부등'
+        # IP등급만 있는 경우는 다른 카테고리 키워드 우선시하기 위해 여기선 매칭 안 함
+        # (실제 외부등 상품은 거의 다 "외부" 단어가 들어있음)
+    
+    # 2순위: 공장등 ("공장" 단어가 있으면 직부등이라도 공장등)
+    if '공장' in s:
+        return '공장등'
+    
+    # 3순위: 벽등 ("벽등" 단어 - 센서 벽등도 여기로)
+    if '벽등' in s:
+        return '벽등'
+    
+    # 4순위: 직부등 ("직부" 단어 - 공장에서 안 걸린 경우)
+    if '직부' in s:
+        return '직부등'
+    
+    # 5순위: 센서등 ("센서" - 위에서 모두 안 걸린 경우만, 실내 전용)
+    if '센서' in s:
+        return '센서등'
+    
+    return ''
+
+
 def detect_category(text):
     """품명에서 마지막에 나오는 분류 키워드 찾기"""
     if not text:
         return ''
     
-    # 1순위: 레일/마그네틱 특수 분류
+    # 1순위: 레일/마그네틱 특수 분류 (가장 우선)
     special = detect_special_category(text)
     if special:
         return special
+    
+    # 2순위: 외부등/공장등/벽등/직부등/센서등 우선순위 룰
+    priority = detect_priority_category(text)
+    if priority:
+        return priority
     
     s = str(text).upper()
     
