@@ -990,8 +990,8 @@ def build_product_name(abbr, raw_text, memo_text, category, model_code_full=''):
         features['model_code_full'] = model_code_full
     product = extract_product_name(raw_text, features, category)
     
-    # 약자 prefix
-    prefix = f"{abbr}) " if abbr else ") "
+    # 약자 prefix (약자 없으면 prefix 자체 생략 — 잘못된 ")" 방지)
+    prefix = f"{abbr}) " if abbr else ""
     
     # LED 필요 여부 (와트 있으면 무조건 LED)
     led_str = "LED" if features['led_required'] else ""
