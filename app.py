@@ -148,12 +148,12 @@ button[kind="tertiary"]:active {
     outline: none !important;
 }
 /* hover 시 툴팁 (button의 가상 자식 element) */
-@import url('https://fonts.googleapis.com/css2?family=Cute+Font&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Yeon+Sung&display=swap');
 button[kind="tertiary"] {
     overflow: visible !important;
 }
 button[kind="tertiary"]::before {
-    content: "처음으로\\A가자멍♥";
+    content: "이전으로\\A돌아가자멍";
     white-space: pre;
     text-align: center;
     
@@ -179,7 +179,7 @@ button[kind="tertiary"]::before {
     /* 스타일 - 동글동글 손글씨 폰트 */
     background: rgba(255, 255, 255, 0.97);
     color: #555 !important;
-    font-family: 'Cute Font', cursive !important;
+    font-family: 'Yeon Sung', cursive !important;
     font-size: 13px !important;
     font-weight: 400;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
@@ -213,7 +213,7 @@ button[kind="tertiary"]:hover::before {
 st.markdown("""
     <style>
     .block-container { 
-        padding-top: 1rem !important; 
+        padding-top: 3rem !important; 
         max-width: 730px !important;
     }
     .stApp { background-color: white; }
@@ -561,6 +561,8 @@ def clean_raw_text(text):
     if not text:
         return ""
     s = str(text)
+    # 0. 한쪽 괄호 닫힘 약자 처리: "DN)실링팬" → "DN) 실링팬" (띄어쓰기 추가)
+    s = re.sub(r'([A-Z]{1,5})\)([가-힣A-Za-z])', r'\1) \2', s)
     # 1. 자체 회사 약자/접두 제거: (BN), [P], (P) 등 (영문 1~5자 괄호)
     s = re.sub(r'\([A-Z]{1,5}\)', '', s)
     s = re.sub(r'\[[A-Z]{1,5}\]', '', s)
@@ -666,6 +668,10 @@ def normalize_lightcolor(text):
 CATEGORY_KEYWORDS = {
     '펜던트': ['펜던트', '팬던트', 'P/D', 'PD'],
     '매입등': ['다운라이트', '매입등', '매입', 'D/L', 'DL'],
+    '실링팬': ['실링팬', '시링팬', '천장팬'],
+    'T5': ['T5'],
+    'T7': ['T7'],
+    'T3': ['T3'],
     '배선기구': ['조광기', '디머', '스위치형', '컨트롤러', '리모컨'],
     '램프': ['MR16', 'MR11', 'PAR16', 'PAR20', 'PAR30', 'PAR38',
              '벌브', '인찌구', '볼구', '촛대구',
@@ -673,7 +679,7 @@ CATEGORY_KEYWORDS = {
              'G45', 'G80', 'G95', 'G125', 'G9',
              'A19', 'A21', 'A60', 'A65', 'A70', 'A75', 'A80', 'A95', 'A110',
              'C35', 'B11', 'B35',
-             'T3', 'T5', 'T8',
+             'T8',
              'PL램프', 'PLC', 'PLD', 'PLT',
              '콘벌브', '램프'],
 }
@@ -1261,6 +1267,20 @@ if uploaded_files:
             
             prompt = """
 거래명세서 이미지를 분석해서 정보를 단순 추출해줘. 가공/포맷팅은 절대 하지 마.
+
+## ⚠️ 매우 중요: 사진 품질에 대한 태도
+- 사진이 흐릿해 보여도, 그림자/조명/촬영각도가 있어도 **반드시 추측해서 모든 행을 추출**해.
+- "사진이 흐려서 인식 못 한다"는 응답 금지.
+- 100% 확신이 안 서면 가장 가능성 높은 글자로 추출해. 빈 행 만들지 말고.
+- 정 안 보이는 글자만 ?로 표기하되, 그 행도 다른 정보(수량/단가)는 반드시 채워.
+
+## ⚠️ 분류 키워드 보존 (매우 중요)
+품명에 다음과 같은 단서가 있으면 raw_name에 **그대로 보존**해 (지우지 마):
+- "IP65", "IP44", "IP등급" 같은 방수등급 표기 → 외부등 분류에 필요
+- "외부", "외부등", "옥외", "야외" → 외부등 분류에 필요
+- "실내", "실내용" → 실내 분류에 필요
+- "벽등", "공장등", "직부등", "센서등" → 분류 키워드
+- "스위치", "콘센트", "플레이트" → 배선기구 분류
 
 ## ⚠️ 매우 중요: 매입처 식별
 거래명세서에는 보통 2개의 회사 정보가 있어:
