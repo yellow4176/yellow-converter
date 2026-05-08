@@ -1071,10 +1071,16 @@ def build_product_name(abbr, raw_text, memo_text, category, model_code_full=''):
     led_str = "LED" if features['led_required'] else ""
     
     if category == '매입등':
-        # [약자]) LED [COB] [인치] [디밍] [방습] [상품명+형태]/[집중/확산]/[색상]/[W]/[불빛색]
+        # 사용자 룰: LED → 상품명 → COB → 인치 → 디밍 → 방습 → 매입등 → / 집중확산/색상/W/불빛색
+        # 상품명에서 "매입", "매입등" 단어 제거 (별도 항목으로 분리)
+        clean_product = re.sub(r'매입등?', '', product).strip()
+        clean_product = re.sub(r'\s+', ' ', clean_product).strip()  # 연속 공백 정리
+        
         parts_front = []
         if led_str:
             parts_front.append(led_str)
+        if clean_product:
+            parts_front.append(clean_product)  # 상품명만 (매입 제거됨)
         if features['cob']:
             parts_front.append('COB')
         if features['inch']:
@@ -1083,7 +1089,7 @@ def build_product_name(abbr, raw_text, memo_text, category, model_code_full=''):
             parts_front.append('디밍')
         if features['waterproof']:
             parts_front.append('방습')
-        parts_front.append(product)
+        parts_front.append('매입등')  # ← 매입등을 사양들 직전에 별도 항목으로
         front = ' '.join(p for p in parts_front if p)
         
         # 슬래시 부분
