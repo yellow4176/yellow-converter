@@ -1072,8 +1072,8 @@ def build_product_name(abbr, raw_text, memo_text, category, model_code_full=''):
     
     if category == '매입등':
         # 사용자 룰: LED → 상품명 → COB → 인치 → 디밍 → 방습 → 매입등 → / 집중확산/색상/W/불빛색
-        # 상품명에서 "매입", "매입등" 단어 제거 (별도 항목으로 분리)
-        clean_product = re.sub(r'매입등?', '', product).strip()
+        # 상품명에서 "매입", "매입등", "매입형", "매입식" 등 단어 제거 (별도 항목으로 분리)
+        clean_product = re.sub(r'매입(?:등|형|식|용)?', '', product).strip()
         clean_product = re.sub(r'\s+', ' ', clean_product).strip()  # 연속 공백 정리
         
         parts_front = []
