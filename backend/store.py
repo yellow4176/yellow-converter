@@ -34,6 +34,17 @@ class JsonStore:
                 return light
         return None
 
+    def patch_light(self, light_id: str, patch: dict[str, Any], updated_at: str) -> dict[str, Any] | None:
+        data = self._read()
+        for idx, light in enumerate(data["lights"]):
+            if light["id"] == light_id:
+                light.update(patch)
+                light["updated_at"] = updated_at
+                data["lights"][idx] = light
+                self._write(data)
+                return light
+        return None
+
     def insert_query(self, query: dict[str, Any]) -> None:
         data = self._read()
         data["queries"].append(query)
@@ -47,7 +58,6 @@ class JsonStore:
 
 
 def image_embedding(image: Image.Image) -> list[float]:
-    # MVP: 색상 히스토그램 기반 임베딩 (간단/빠름)
     img = image.convert("RGB").resize((128, 128))
     arr = np.asarray(img, dtype=np.float32)
     hist_r, _ = np.histogram(arr[:, :, 0], bins=16, range=(0, 255), density=True)
