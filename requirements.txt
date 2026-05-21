@@ -4,3 +4,8 @@ pandas
 openpyxl
 Pillow
 requests
+
+fastapi
+uvicorn
+python-multipart
+numpy
